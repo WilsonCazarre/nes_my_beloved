@@ -3,13 +3,13 @@
   .byte 2                   ; 2x 16KB PRG-ROM Banks
   .byte 1                   ; 1x  8KB CHR-ROM
   .byte $00                 ; mapper 0 (NROM)      
+  .byte $00                 ; mapper 0 (NROM)      
 
 .segment "VECTORS"
   .addr nmi, reset, 0
 .segment "STARTUP"
 
 .segment "ZEROPAGE"
-  joypad_a_data: .byte 0
 
 .segment "CODE"
 ; Library includes
@@ -19,7 +19,7 @@
 
 .proc reset
   sei          ; disable IRQs
-  cld          ; disable decimal mode
+  cld          ; disabe decimal mode
   ; disable APU frame IRQ
   ldx #$40
   stx APU_FRAME_COUNTER  
@@ -33,11 +33,12 @@
   stx PPU_MASK    ; disable rendering
   stx DMC_IRQ     ; disable DMC IRQs
   VblankWait
-  lda #$15
+  lda #$00
 @ram_reset_loop:
   sta $000, x
   sta $100, x
   sta $200, x
+  sta $300, x
   sta $400, x
   sta $500, x
   sta $600, x
@@ -49,7 +50,10 @@
 
   jsr LoadPalettes
 
-  LoadNametables
+  jsr LoadNametables
+  
+  InitPPU
+  VramReset
   
 @GameLoop:
   jsr PoolControllerA
@@ -57,14 +61,33 @@
 .endproc
 
 .proc nmi
-  LDA #%10010000   ; enable NMI sprites, from Pattern Table 0, background from Pattern Table 1
-  STA $2000
-  LDA #%00011110   ; enable sprites, enable background, no clipping on left side
-  STA $2001
-  LDA #$00         ;tell the ppu there is no background scrolling
-  STA $2005
-  STA $2005
-  RTI
+  bit PPU_STATUS
+  lda #.HIBYTE(LoadNametables::CTRL_BUFFER)
+  sta PPU_ADDR
+  lda #.LOBYTE(LoadNametables::CTRL_BUFFER)
+  sta PPU_ADDR
+  
+  lda PoolControllerA::BUTTON_TILES
+  sta PPU_DATA
+  lda PoolControllerA::BUTTON_TILES+1
+  sta PPU_DATA
+  lda PoolControllerA::BUTTON_TILES+4
+  sta PPU_DATA
+  lda PoolControllerA::BUTTON_TILES+5
+  sta PPU_DATA
+  lda PoolControllerA::BUTTON_TILES+6
+  sta PPU_DATA
+  lda PoolControllerA::BUTTON_TILES+7
+  sta PPU_DATA
+
+  
+  ; Render loop
+  lda OAM_HIGH_BYTE
+  sta OAM_DMA
+
+  VramReset
+
+  rti
 .endproc
 
 .segment "CHARS"

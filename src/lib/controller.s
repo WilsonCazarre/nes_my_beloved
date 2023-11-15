@@ -10,29 +10,43 @@ JOYPAD_A = $4016
 JOYPAD_B = $4017
 
 ; --------------- Input Masks --------------------
-BTN_MASK_A      = %00000001
-BTN_MASK_B      = %00000010
-BTN_MASK_SEL    = %00000100
-BTN_MASK_STR    = %00001000
-BTN_MASK_UP     = %00010000
-BTN_MASK_DOWN   = %00100000
-BTN_MASK_LEFT   = %01000000
-BTN_MASK_RIGHT  = %10000000
+BTN_MASK_A      = 1 << 7
+BTN_MASK_B      = 1 << 6
+BTN_MASK_SEL    = 1 << 5
+BTN_MASK_STR    = 1 << 4
+BTN_MASK_UP     = 1 << 3
+BTN_MASK_DOWN   = 1 << 2
+BTN_MASK_LEFT   = 1 << 1
+BTN_MASK_RIGHT  = 1 << 0
 
 ; ------------------ Macros ----------------------
 .proc PoolControllerA
+  BUTTON_TILES = $600
+  BUTTON_DATA = $21
   ; Pulse JOYPAD_A to start pooling
   lda #$01
   sta JOYPAD_A
-  lda #$00
+  sta BUTTON_DATA
+  lsr A
   sta JOYPAD_A
-  sta joypad_a_data
 
-@loop:
+@controllerLoop:
   lda JOYPAD_A
-  lsr a 
-  rol
-  bcc @loop
+  lsr 
+  rol BUTTON_DATA
+  bcc @controllerLoop
 
+  ldx #7
+  ldy BUTTON_DATA
+@tilesLoop:
+  tya
+  lsr
+  tay
+  lda #$10
+  adc #0
+  sta BUTTON_TILES, x
+  dex
+  bpl @tilesLoop
   rts
+  
 .endproc
