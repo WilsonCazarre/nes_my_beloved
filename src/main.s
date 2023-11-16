@@ -3,7 +3,8 @@
   .byte 2                   ; 2x 16KB PRG-ROM Banks
   .byte 1                   ; 1x  8KB CHR-ROM
   .byte $00                 ; mapper 0 (NROM)      
-  .byte $00                 ; mapper 0 (NROM)      
+  .byte $00                 ; mapper 0 (NROM)
+  ; oi sabrina     
 
 .segment "VECTORS"
   .addr nmi, reset, 0
