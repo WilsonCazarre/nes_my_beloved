@@ -21,8 +21,11 @@ BTN_MASK_RIGHT  = 1 << 0
 
 ; ------------------ Macros ----------------------
 .proc PoolControllerA
+  ; BUTTON_DATA
+  ; A - B - 
+
   BUTTON_TILES = $600
-  BUTTON_DATA = $21
+  BUTTON_DATA = $21 ; 0000 0000
   PRESSED_DATA = $22
   RENDER_FLAG = $23
   

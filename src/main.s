@@ -47,7 +47,7 @@
   inx 
   bne @ram_reset_loop
 
-  VblankWait
+  VblankWait ;
 
   jsr LoadPalettes
 
@@ -57,10 +57,19 @@
   InitApu
   VramReset
   
-@GameLoop:
+
+
+
+GameLoop:
   jsr PoolControllerA
-  ;
-  jmp @GameLoop
+  lda PoolControllerA::PRESSED_DATA
+  cmp #%00000000
+  bne playSound
+  jmp GameLoop
+playSound:
+  jsr PlayBeep
+
+  jmp GameLoop
 .endproc
 
 .proc nmi
