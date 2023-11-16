@@ -111,6 +111,17 @@ OAM_HIGH_BYTE = $02
   sta PPU_ADDR
 .endmacro
 
+.macro LoadVram Address
+  ; Fill X bytes with A
+  tay ; Save A 
+  bit PPUSTATUS
+  lda .HIBYTE(Address)
+  sta PPU_ADDR
+  lda .LOBYTE(Address)
+  sta PPU_ADDR
+  tya ; Restore A
+.endmacro
+
 .proc LoadNametables
   CTRL_BUFFER = $2062
   

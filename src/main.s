@@ -43,7 +43,7 @@
   sta $500, x
   sta $600, x
   sta $700, x
-  inx
+  inx 
   bne @ram_reset_loop
 
   VblankWait
@@ -53,10 +53,12 @@
   jsr LoadNametables
   
   InitPPU
+  InitApu
   VramReset
   
 @GameLoop:
   jsr PoolControllerA
+  ;
   jmp @GameLoop
 .endproc
 
@@ -71,6 +73,7 @@
   sta PPU_DATA
   lda PoolControllerA::BUTTON_TILES+1
   sta PPU_DATA
+  ; Not showing start and select on screen
   lda PoolControllerA::BUTTON_TILES+4
   sta PPU_DATA
   lda PoolControllerA::BUTTON_TILES+5
@@ -79,8 +82,34 @@
   sta PPU_DATA
   lda PoolControllerA::BUTTON_TILES+7
   sta PPU_DATA
-
   
+  bit PPU_STATUS
+  lda #$21
+  sta PPU_ADDR
+  lda #$80
+  sta PPU_ADDR
+
+  lda PoolControllerA::RENDER_FLAG
+  cmp #1
+  bne notPressed
+
+  ldx #0
+@loop:
+  lda hello, x
+  sta PPU_DATA
+  inx
+  cpx #5
+  bne @loop
+  jmp endButtonHandle
+notPressed:
+  ldx #0
+  lda #$00
+@loop1:
+  sta PPU_DATA
+  inx
+  cpx #5
+  bne @loop1
+endButtonHandle:
   ; Render loop
   lda OAM_HIGH_BYTE
   sta OAM_DMA
@@ -88,6 +117,10 @@
   VramReset
 
   rti
+  hello:
+  .byte $28, $25, $2c, $2c, $2f
+  
+
 .endproc
 
 .segment "CHARS"

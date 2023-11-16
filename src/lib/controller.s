@@ -23,6 +23,13 @@ BTN_MASK_RIGHT  = 1 << 0
 .proc PoolControllerA
   BUTTON_TILES = $600
   BUTTON_DATA = $21
+  PRESSED_DATA = $22
+  RENDER_FLAG = $23
+  
+  ; Save previous BUTTON_DATA into y
+  sta BUTTON_DATA
+  tay
+
   ; Pulse JOYPAD_A to start pooling
   lda #$01
   sta JOYPAD_A
@@ -30,12 +37,20 @@ BTN_MASK_RIGHT  = 1 << 0
   lsr A
   sta JOYPAD_A
 
+  ; Update BUTTON_DATA with new button press
 @controllerLoop:
   lda JOYPAD_A
   lsr 
   rol BUTTON_DATA
   bcc @controllerLoop
 
+  ; Retrieve old BUTTON_DATA and compares it to new
+  tya
+  eor BUTTON_DATA
+  and BUTTON_DATA
+  sta PRESSED_DATA
+
+  ; Update Input Display tiles
   ldx #7
   ldy BUTTON_DATA
 @tilesLoop:
@@ -47,6 +62,23 @@ BTN_MASK_RIGHT  = 1 << 0
   sta BUTTON_TILES, x
   dex
   bpl @tilesLoop
+
+  
+  lda #BTN_MASK_A 
+  cmp BUTTON_DATA
+  bne endButtonHandle
+  lda RENDER_FLAG
+  lsr
+  bcs notPressed
+  lda #1
+  sta RENDER_FLAG
+  jmp endButtonHandle
+notPressed:
+  lda #0
+  sta RENDER_FLAG
+endButtonHandle:
+  
   rts
+
   
 .endproc
