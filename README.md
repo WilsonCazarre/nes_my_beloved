@@ -2,7 +2,11 @@
 
 Final project for the *Computer Architecture and Organization* course.
 
-# How to run this game
+# How to run the game
+
+First of all, you should be on Windows to build this game.
+
+If you are not on Windows, God help you, cause this tutorial will not.
 
 This project uses [cc65](https://cc65.github.io/) to build the actual NES rom.
 You can download the Windows version [here](https://cc65.github.io/getting-started.html)
