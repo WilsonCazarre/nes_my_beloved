@@ -32,9 +32,8 @@ POOL_CONTROLLER = $30
   ;   5. Load the Color Palettes and initial Nametables
   ;   6. Init the PPU and APU
   ;   7. Run the infinite Game Loop
-
-  sei          ; disable IRQs
-  cld          ; disabe decimal mode
+  sei          ; disable Interrupt Requests
+  cld          ; disable decimal mode
   ; disable APU frame IRQ
   ldx #$40
   stx APU_FRAME_COUNTER  
@@ -63,7 +62,14 @@ POOL_CONTROLLER = $30
 
   jsr LoadPalettes
 
-  jsr LoadNametables
+  ; jsr LoadNametables
+  lda #$00
+  ldx #$20
+  LoadVram NAMETABLE_A+$20
+
+  lda #$20
+  ldx #$20
+  LoadVram NAMETABLE_A+$40
   
   InitPPU
 
@@ -102,8 +108,6 @@ POOL_CONTROLLER = $30
   ; need to save the current state of the registers to the stack.
   ; The NMI can (and probably will) be called in the middle of a procedure that is
   ; currently using the 6502 registers.
-  ; The code below push the registers A, Y and X (in that order) to the stack.
-  ; We restore those registers at the end of NMI in the reverse order.
   SaveRegisters
 
   bit PPU_STATUS
@@ -128,8 +132,8 @@ POOL_CONTROLLER = $30
 
   VramReset
 
-  ; Pull X, Y and A from the stack. The Pull order needs to be reversed from the Push.
   RestoreRegisters
+
   rti
 
 hello:

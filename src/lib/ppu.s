@@ -78,30 +78,30 @@ OAM_HIGH_BYTE = $02
 .proc LoadPalettes
   bit PPU_STATUS
   ldx #$00
-  ; Set top address of ppu as 3f (palettes location)
+  ; Set top address of ppu as 3f (palettes location
   lda #$3f
   sta PPU_ADDR
   stx PPU_ADDR
   
-  @load_pallete_loop:
-    lda color_palletes, x
-    sta PPU_DATA
-    inx
-    cpx #32
-    bne @load_pallete_loop
-    rts
-  color_palletes:
-    ; Background Palettes
-    .byte $0C, $14, $23, $37
-    .byte $0C, $14, $23, $37
-    .byte $0C, $14, $23, $37
-    .byte $0C, $14, $23, $37
+@load_pallete_loop:
+  lda color_palletes, x
+  sta PPU_DATA
+  inx
+  cpx #32
+  bne @load_pallete_loop
+  rts
+color_palletes:
+  ; Background Palettes
+  .byte $0c, $14, $23, $37
+  .byte $0c, $14, $23, $37
+  .byte $0c, $14, $23, $37
+  .byte $0c, $14, $23, $37
 
-    ; Sprite Palettes
-    .byte $0C, $14, $23, $37
-    .byte $0C, $14, $23, $37
-    .byte $0C, $14, $23, $37
-    .byte $0C, $14, $23, $37
+  ; Sprite Palettes
+  .byte $0c, $14, $23, $37
+  .byte $0c, $14, $23, $37
+  .byte $0c, $14, $23, $37
+  .byte $0c, $14, $23, $37
 .endproc
 
 .macro VramReset
@@ -112,15 +112,19 @@ OAM_HIGH_BYTE = $02
 .endmacro
 
 .macro LoadVram Address
-  ; Load X to the Address in the PPU VRAM
+  ; Load A to the Address in the PPU VRAM, X times
+  tay
+  bit PPU_STATUS
+  lda #.HIBYTE(Address)
+  sta PPU_ADDR
+  lda #.LOBYTE(Address)
+  sta PPU_ADDR
+  tya
+:
+  sta PPU_DATA
+  dex
+  bne :-
 
-  tay ; Save A in the Y reg
-  bit PPUSTATUS
-  lda .HIBYTE(Address)
-  sta PPU_ADDR
-  lda .LOBYTE(Address)
-  sta PPU_ADDR
-  tya ; Restore A
 .endmacro
 
 .proc LoadNametables
@@ -137,7 +141,7 @@ OAM_HIGH_BYTE = $02
   lda nametable, x
   sta PPU_DATA
   inx
-  cpx #$FF
+  cpx #$ff
   bne @loop
   rts
 
