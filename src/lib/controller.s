@@ -30,14 +30,13 @@ BTN_MASK_RIGHT  = 1 << 0
   RENDER_FLAG = $23
   
   ; Save previous BUTTON_DATA into y
-  sta BUTTON_DATA
-  tay
-
+  ldy BUTTON_DATA
+  
   ; Pulse JOYPAD_A to start pooling
   lda #$01
   sta JOYPAD_A
   sta BUTTON_DATA
-  lsr A
+  lsr 
   sta JOYPAD_A
 
   ; Update BUTTON_DATA with new button press

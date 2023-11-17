@@ -1,3 +1,4 @@
+POOL_CONTROLLER = $30
 .segment "HEADER"
   .byte "NES", $1A          ; iNES header identifier
   .byte 2                   ; 2x 16KB PRG-ROM Banks
@@ -56,23 +57,37 @@
   InitPPU
   InitApu
   VramReset
-  
 
-
-
-GameLoop:
+@GameLoop:
+  lda POOL_CONTROLLER
+  cmp #$01
+  bne @GameLoop
+@PoolController:
   jsr PoolControllerA
   lda PoolControllerA::PRESSED_DATA
   cmp #%00000000
-  bne playSound
-  jmp GameLoop
-playSound:
+  bne @playSound
+  jmp @GameLoop
+@playSound:
   jsr PlayBeep
+  ; lda #$00
+  ; sta POOL_CONTROLLER
 
-  jmp GameLoop
+  jmp @GameLoop
 .endproc
 
 .proc nmi
+  ; Save registers
+  pha
+  tya
+  pha
+  txa
+  pha
+
+
+  lda #$01
+  sta POOL_CONTROLLER
+
   bit PPU_STATUS
   lda #.HIBYTE(LoadNametables::CTRL_BUFFER)
   sta PPU_ADDR
@@ -92,42 +107,18 @@ playSound:
   sta PPU_DATA
   lda PoolControllerA::BUTTON_TILES+7
   sta PPU_DATA
-  
-  bit PPU_STATUS
-  lda #$21
-  sta PPU_ADDR
-  lda #$80
-  sta PPU_ADDR
-
-  lda PoolControllerA::RENDER_FLAG
-  cmp #1
-  bne notPressed
-
-  ldx #0
-@loop:
-  lda hello, x
-  sta PPU_DATA
-  inx
-  cpx #5
-  bne @loop
-  jmp endButtonHandle
-notPressed:
-  ldx #0
-  lda #$00
-@loop1:
-  sta PPU_DATA
-  inx
-  cpx #5
-  bne @loop1
-endButtonHandle:
-  ; Render loop
-  lda OAM_HIGH_BYTE
-  sta OAM_DMA
-
   VramReset
 
+  ; Restore registers
+  pla
+  tax
+  pla
+  tay
+  pla
+
   rti
-  hello:
+
+hello:
   .byte $28, $25, $2c, $2c, $2f
   
 

@@ -19,11 +19,10 @@ PULSE1_FREQ_HI = $4003
   lda #%10010111
   sta PULSE1_CONTROL
 
-    lda #$C9    ;0C9 is a C# in NTSC mode
-    sta PULSE1_FREQ_LO
-    lda #%00111000
-    sta PULSE1_FREQ_HI
+  lda #$C9    ;0C9 is a C# in NTSC mode
+  sta PULSE1_FREQ_LO
   
-
-
+  lda #%00111000
+  sta PULSE1_FREQ_HI
+  rts
 .endproc
