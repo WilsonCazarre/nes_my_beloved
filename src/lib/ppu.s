@@ -112,8 +112,9 @@ OAM_HIGH_BYTE = $02
 .endmacro
 
 .macro LoadVram Address
-  ; Fill X bytes with A
-  tay ; Save A 
+  ; Load X to the Address in the PPU VRAM
+
+  tay ; Save A in the Y reg
   bit PPUSTATUS
   lda .HIBYTE(Address)
   sta PPU_ADDR

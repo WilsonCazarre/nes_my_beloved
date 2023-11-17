@@ -14,7 +14,6 @@ PULSE1_FREQ_HI = $4003
 .endmacro
 
 
-
 .proc PlayBeep
   lda #%10010111
   sta PULSE1_CONTROL
