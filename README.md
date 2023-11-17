@@ -14,13 +14,8 @@ So for example, if you downloaded and unzip the `cc65` into the folder `C:\cc65-
 
 After that, just run in the shell:
 ```
-make
+./build.bat
 ```
 This will build the game, creating the `main.nes` file, and execute it with the emulator `Mesen.exe`
 
 It is possible that Mesen will ask you to install the .NET 6 Runtime when you run it for the first time. Just follow their instruction and you'll probably be ok.
-
-You can also use:
-- `make build` to create the ROM, but not run the executable
-- `make clean` to delete all the ROM files. Useful if you want a clean build.
-
