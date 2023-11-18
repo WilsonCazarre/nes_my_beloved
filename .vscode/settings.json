@@ -1,0 +1,14 @@
+{
+    "filewatcher.commands": [
+        {
+            "match": "\\**/*.s*",
+            "isAsync": true,
+            "event": "onFileChange",
+            "vscodeTask": [
+                "workbench.action.tasks.runTask",
+                "mesen-build"
+            ]
+        }
+    ],
+    "cmake.configureOnOpen": false
+}
