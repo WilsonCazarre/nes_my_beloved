@@ -59,7 +59,7 @@ BTN_MASK_RIGHT  = 1 << 0
   tya
   lsr
   tay
-  lda #$10
+  lda #$30
   adc #0
   sta BUTTON_TILES, x
   dex

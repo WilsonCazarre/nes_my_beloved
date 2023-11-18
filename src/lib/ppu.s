@@ -58,6 +58,8 @@ PALETTES    = $3f00
 
 OAM_HIGH_BYTE = $02
 
+PPU_LINE_LENGTH = $20
+
 .macro InitPPU
   lda #%10010000
   sta PPU_CTRL
@@ -111,24 +113,73 @@ color_palletes:
   sta PPU_ADDR
 .endmacro
 
-.macro LoadVram Address
-  ; Load A to the Address in the PPU VRAM, X times
-  tay
+.macro SetVramAddress VramAddress
   bit PPU_STATUS
-  lda #.HIBYTE(Address)
+  lda #.HIBYTE(VramAddress)
   sta PPU_ADDR
-  lda #.LOBYTE(Address)
+  lda #.LOBYTE(VramAddress)
   sta PPU_ADDR
-  tya
-:
+.endmacro
+
+.macro LoadByteToVram VramAddress, LoadByte, Counter
+  ; Loads A to the VramAdress in the PPU VRAM. Use Counter to repeat the operation.
+  SetVramAddress VramAddress
+  lda LoadByte
+  ldx Counter
+: 
   sta PPU_DATA
   dex
   bne :-
+.endmacro
 
+.macro LoadAddressToVram VramAddress, RamAddress, Len
+  ; Loads RamAdress[0:Len] to VramAdress
+  SetVramAddress VramAddress
+  ldx #$00
+:
+  lda RamAddress, x
+  sta PPU_DATA
+  inx
+  cpx Len
+  bne :-
+.endmacro
+
+
+.macro LoadStringToVram VramAddress, RamAddress
+  ; Keeps incremetly loading RamAddress to VramAddress until finds a byte $0 or
+  ; the X register reaches 255.
+  ; Common use case is to load a string into memory.
+  ; So you can define a string with a label:
+  ; | hello:
+  ; |   .byte "Hello, World!", $0
+  ; The $0 there is important so the macro knows when to stop reading the string.
+  ; Then you can invoke the macro like so:
+  ; | LoadStringToVram $2081, hello
+
+  ; `$2081` is an arbitrary Vram Nametable address where you would want 
+  ; you string to start rendering.
+  ; 
+  ; NOTE: This only works if the because the ASCII Char tiles are position inside
+  ; the CHR file at the same index they would appear at the ASCII Table.
+  ; So for example, 'D' in the ASCII is the hex $44, so if you need to place
+  ; the 'D' symbol at tile index $44 in the second page inside the CHR file.
+
+
+  SetVramAddress VramAddress
+  ldx #$00
+:
+  lda RamAddress, x
+  cmp $0
+  beq :+
+  sta PPU_DATA
+  inx 
+  bne :-
+:
 .endmacro
 
 .proc LoadNametables
-  CTRL_BUFFER = $2062
+  CTRL_BUFFER = $2042
+  TILES_BUFFER = $2022
   
   ; load $20 tiles
   bit PPU_STATUS
