@@ -1,29 +1,28 @@
-POOL_CONTROLLER = $30
 .segment "HEADER"
   .byte "NES", $1A          ; iNES header identifier
   .byte 2                   ; 2x 16KB PRG-ROM Banks
   .byte 1                   ; 1x  8KB CHR-ROM
   .byte $00                 ; mapper 0 (NROM)      
-  .byte $00                 ; mapper 0 (NROM)
-  
 
 .segment "VECTORS"
   .addr nmi, reset, 0
-.segment "STARTUP"
 
+.segment "STARTUP"
 .segment "ZEROPAGE"
 
 .segment "CODE"
 ; Library includes
+.include "lib/utils.s"
 .include "lib/ppu.s"
 .include "lib/apu.s"
 .include "lib/controller.s"
-.include "lib/utils.s"
+
+.include "state/hud.s"
 
 
 .proc reset
   ; The reset procedure is the entry point for our game. 
-  ; It puts the processor in a know state before starting to run the game.
+  ; It puts the processor in a known state before starting to run the game.
   ; Roughtly, the set of steps the routine does:
   ;   1. Disable Interrupt Requests and Decimal mode. This 6502 features are not used by the NES.
   ;   2. Initalize the stack pointer to $FF
@@ -32,15 +31,18 @@ POOL_CONTROLLER = $30
   ;   5. Load the Color Palettes and initial Nametables
   ;   6. Init the PPU and APU
   ;   7. Run the infinite Game Loop
+
   sei          ; disable Interrupt Requests
   cld          ; disable decimal mode
   ; disable APU frame IRQ
   ldx #$40
   stx APU_FRAME_COUNTER  
 
-  ; Set up stack
+  ; Set up stack pointer
   ldx #$FF
   txs
+
+  jsr PpuController::init
 
   inx             ; X = 0
   stx PPU_CTRL    ; disable NMI
@@ -64,7 +66,11 @@ POOL_CONTROLLER = $30
 
   jsr LoadNametables
   
-  InitPPU
+
+  jsr HUD::init
+
+  jsr PpuController::init
+
 
   InitApu
 
@@ -80,7 +86,12 @@ POOL_CONTROLLER = $30
   ; in a code executed during the Game Loop, you're probably doing someting wrong.
 
   ; Reading Controller Input
+  lda #$00
+  sta PpuController::buffer_pointer
   jsr PoolControllerA
+  jsr HUD::updateState
+  inc PpuController::buffer_pointer
+
   lda PoolControllerA::PRESSED_DATA
   ; Play beep sound on every key press
   cmp #%00000000
@@ -124,12 +135,46 @@ POOL_CONTROLLER = $30
   lda PoolControllerA::BUTTON_TILES+7
   sta PPU_DATA
 
+  lda #$00
+  sta PpuController::buffer_pointer
+  tax
+
+  lda PPU_BUFFER, x
+  beq @return
+  tay ; Save len in y
+  inx
+  lda PPU_BUFFER, x
+  cmp #$01
+  beq @setVerticalMode
+@setHorizonalMode:
+  jsr PpuController::setHorizontalVram
+  jmp :+
+@setVerticalMode:
+  jsr PpuController::setVerticalVram
+:
+  bit PPU_STATUS
+  inx
+  lda PPU_BUFFER, x
+  sta PPU_ADDR
+  inx
+  lda PPU_BUFFER, x
+  sta PPU_ADDR
+  inx
+@nextByte:
+  lda PPU_BUFFER, x
+  sta PPU_DATA
+  inx
+  dey
+  bne @nextByte
+@return:
   VramReset
-
+  jsr PpuController::setHorizontalVram
   RestoreRegisters
-
   rti
   
+.endproc
+
+.proc bufferUpdate
 
 .endproc
 

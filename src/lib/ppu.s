@@ -60,17 +60,48 @@ OAM_HIGH_BYTE = $02
 
 PPU_LINE_LENGTH = $20
 
-.macro InitPPU
-  lda #%10010000
-  sta PPU_CTRL
-  lda #%00011110
-  sta PPU_MASK
+PPU_BUFFER = $0100
 
-  ; No scrolling
-  lda #$00
-  sta PPU_SCROLL
-  sta PPU_SCROLL
-.endmacro
+.scope PpuController
+  buffer_pointer = $30
+  .segment "ZEROPAGE"
+    ppu_ctrl_flags: .res 1
+    ppu_mask_flags: .res 1
+    
+  .segment "CODE"
+
+  .proc init
+    lda #%10010000
+    sta PPU_CTRL
+    sta ppu_ctrl_flags
+    lda #%00011110
+    sta PPU_MASK
+    sta ppu_mask_flags
+
+    ; No scrolling
+    lda #$00
+    sta PPU_SCROLL
+    sta PPU_SCROLL
+    sta buffer_pointer
+    lda #$01
+    sta buffer_pointer+1
+    rts
+  .endproc
+
+  .proc setVerticalVram
+    lda #%10010100
+    sta PPU_CTRL
+    sta ppu_ctrl_flags
+    rts
+  .endproc
+
+  .proc setHorizontalVram
+    lda #%10010000
+    sta PPU_CTRL
+    sta ppu_ctrl_flags
+    rts
+  .endproc
+.endscope
 
 .macro VblankWait
 : bit PPU_STATUS  ; N = NMI started
@@ -79,9 +110,8 @@ PPU_LINE_LENGTH = $20
 
 .proc LoadPalettes
   bit PPU_STATUS
-  ldx #$00
-  ; Set top address of ppu as 3f (palettes location
-  lda #$3f
+  ldx #.LOBYTE(PALETTES)
+  lda #.HIBYTE(PALETTES)
   sta PPU_ADDR
   stx PPU_ADDR
   
@@ -180,14 +210,31 @@ color_palletes:
 
 .proc LoadNametables
   TILES_BUFFER = $239a
+  CURSOR_TILE = $81
   CTRL_BUFFER = TILES_BUFFER + PPU_LINE_LENGTH
 
-  LoadAddressToVram TILES_BUFFER, CTRL_TILES, #$06
-  LoadStringToVram $2081, hello
+  LoadAddressToVram TILES_BUFFER, JOYPAD_TILES, #$06
   
   rts
-CTRL_TILES:
-  .byte $F0, $F1, $F2, $F3, $F4, $F5
-hello:
-  .byte "Hello, World!", $0
+
+  JOYPAD_TILES:
+    .byte $F0, $F1, $F2, $F3, $F4, $F5
 .endproc
+
+
+.proc vramPush
+  .segment "ZEROPAGE"
+    load_value: .res 1
+  .segment "CODE"
+  sta load_value
+  tya
+  pha
+  ldy #$00
+  lda load_value
+  sta (PpuController::buffer_pointer), y
+  inc PpuController::buffer_pointer
+  pla
+  tay
+  rts
+.endproc
+

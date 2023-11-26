@@ -25,9 +25,13 @@ BTN_MASK_RIGHT  = 1 << 0
   ; A - B - 
 
   BUTTON_TILES = $600
-  BUTTON_DATA = $21 ; 0000 0000
-  PRESSED_DATA = $22
-  RENDER_FLAG = $23
+  
+  .segment "ZEROPAGE"
+    PRESSED_DATA: .res 1
+    RENDER_FLAG: .res 1
+    BUTTON_DATA: .res 1
+  .segment "CODE"
+  
   
   ; Save previous BUTTON_DATA into y
   ldy BUTTON_DATA
@@ -84,3 +88,4 @@ endButtonHandle:
 
   
 .endproc
+
