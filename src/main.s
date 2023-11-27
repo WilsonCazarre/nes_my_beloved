@@ -1,3 +1,4 @@
+
 .segment "HEADER"
   .byte "NES", $1A          ; iNES header identifier
   .byte 2                   ; 2x 16KB PRG-ROM Banks
@@ -5,17 +6,19 @@
   .byte $00                 ; mapper 0 (NROM)      
 
 .segment "VECTORS"
+  ; Tell the CPU what procedures to call when entering NMI and Reset.
   .addr nmi, reset, 0
 
 .segment "STARTUP"
 .segment "ZEROPAGE"
-
+  frame_flag: .res 1
 .segment "CODE"
 ; Library includes
 .include "lib/utils.s"
 .include "lib/ppu.s"
 .include "lib/apu.s"
 .include "lib/controller.s"
+.include "state/player.s"
 
 .include "state/hud.s"
 
@@ -67,7 +70,7 @@
   jsr LoadNametables
   
 
-  jsr HUD::init
+  ; jsr HUD::ini
 
   jsr PpuController::init
 
@@ -75,6 +78,8 @@
   InitApu
 
   VramReset
+
+  jsr Player::init
 
 @GameLoop:
   ; The Game Loop executes all the game logic.
@@ -85,22 +90,30 @@
   ; As a rule of thumb, if you're reading or writing to the PPU registers 
   ; in a code executed during the Game Loop, you're probably doing someting wrong.
 
-  ; Reading Controller Input
   lda #$00
   sta PpuController::buffer_pointer
-  jsr PoolControllerA
-  jsr HUD::updateState
   inc PpuController::buffer_pointer
+  jsr PoolControllerA
 
-  lda PoolControllerA::PRESSED_DATA
   ; Play beep sound on every key press
+  lda PoolControllerA::PRESSED_DATA
   cmp #%00000000
   bne @playSound
-  jmp @return
+  jmp @update
 @playSound:
   jsr PlayBeep
+@update:
+  lda frame_flag
+  cmp #$01
+  bne @return
+  ; Whatever is in here, it's going to run once per frame
+  jsr Player::update
 @return:
+  lda #$00
+  sta frame_flag
   jmp @GameLoop
+
+
 
 .endproc
 
@@ -169,13 +182,18 @@
 @return:
   VramReset
   jsr PpuController::setHorizontalVram
+  
+  lda #$00
+  sta OAM_ADDR
+  lda #.HIBYTE(OAM_BUFFER)
+  sta OAM_DMA
+
+  lda #$01
+  sta frame_flag
+  
   RestoreRegisters
   rti
   
-.endproc
-
-.proc bufferUpdate
-
 .endproc
 
 .segment "CHARS"

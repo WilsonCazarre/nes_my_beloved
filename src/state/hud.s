@@ -15,8 +15,6 @@
     LoadStringToVram HUD_ADDRESS+PPU_LINE_LENGTH+1, navItem2
     LoadStringToVram HUD_ADDRESS+(PPU_LINE_LENGTH*2)+1, navItem3
     
-    LoadStringToVram POKEMON_ADDRESS, pokemon_labels
-
     lda #$00
 
     sta cursor_state
@@ -26,8 +24,6 @@
     
     rts
     
-  pokemon_labels:
-    .asciiz ""
   .endproc
 
   .proc updateState

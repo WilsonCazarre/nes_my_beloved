@@ -56,7 +56,7 @@ ATTR_C      = $2bc0
 ATTR_D      = $2fc0
 PALETTES    = $3f00
 
-OAM_HIGH_BYTE = $02
+OAM_BUFFER = $0200
 
 PPU_LINE_LENGTH = $20
 
@@ -124,16 +124,16 @@ PPU_BUFFER = $0100
   rts
 color_palletes:
   ; Background Palettes
-  .byte $0c, $14, $23, $37
-  .byte $0c, $14, $23, $37
-  .byte $0c, $14, $23, $37
-  .byte $0c, $14, $23, $37
+  .byte $0c, $20, $2e, $37
+  .byte $0c, $20, $2e, $37
+  .byte $0c, $20, $2e, $37
+  .byte $0c, $20, $2e, $37
 
   ; Sprite Palettes
-  .byte $0c, $14, $23, $37
-  .byte $0c, $14, $23, $37
-  .byte $0c, $14, $23, $37
-  .byte $0c, $14, $23, $37
+  .byte $0c, $20, $2e, $37
+  .byte $0c, $37, $27, $17
+  .byte $0c, $20, $2e, $37
+  .byte $0c, $20, $2e, $37
 .endproc
 
 .macro VramReset
