@@ -110,30 +110,33 @@ PPU_BUFFER = $0100
 
 .proc LoadPalettes
   bit PPU_STATUS
-  ldx #.LOBYTE(PALETTES)
-  lda #.HIBYTE(PALETTES)
-  sta PPU_ADDR
+  ldx #.LOBYTE(PALETTES) ; x = $00
+  lda #.HIBYTE(PALETTES) ; a = $3f
+
+  ; Tell the PPU write to 3f00
+  sta PPU_ADDR  
   stx PPU_ADDR
   
 @load_pallete_loop:
-  lda color_palletes, x
+  lda color_palletes, x ; color_palletes[0]
   sta PPU_DATA
   inx
   cpx #32
   bne @load_pallete_loop
   rts
+  
 color_palletes:
   ; Background Palettes
-  .byte $0c, $20, $2e, $37
-  .byte $0c, $20, $2e, $37
-  .byte $0c, $20, $2e, $37
-  .byte $0c, $20, $2e, $37
+  .byte $0c, $14, $23, $37
+  .byte $0c, $20, $0d, $37
+  .byte $0c, $20, $0d, $37
+  .byte $0c, $20, $0d, $37
 
   ; Sprite Palettes
-  .byte $0c, $20, $2e, $37
+  .byte $0c, $20, $0d, $37
   .byte $0c, $37, $27, $17
-  .byte $0c, $20, $2e, $37
-  .byte $0c, $20, $2e, $37
+  .byte $0c, $2a, $15, $0d
+  .byte $0c, $20, $0d, $37
 .endproc
 
 .macro VramReset

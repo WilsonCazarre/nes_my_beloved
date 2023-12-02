@@ -19,6 +19,7 @@
 .include "lib/apu.s"
 .include "lib/controller.s"
 .include "state/player.s"
+.include "state/map.s"
 
 .include "state/hud.s"
 
@@ -70,16 +71,18 @@
   jsr LoadNametables
   
 
-  ; jsr HUD::ini
-
+  jsr HUD::init
+  jsr Map::init
   jsr PpuController::init
-
+  
 
   InitApu
 
   VramReset
 
   jsr Player::init
+  
+  
 
 @GameLoop:
   ; The Game Loop executes all the game logic.
@@ -94,27 +97,28 @@
   sta PpuController::buffer_pointer
   inc PpuController::buffer_pointer
   jsr PoolControllerA
+  jsr Player::update
 
   ; Play beep sound on every key press
   lda PoolControllerA::PRESSED_DATA
   cmp #%00000000
-  bne @playSound
-  jmp @update
+  ; bne @playSound
+  jmp @updateFrame
 @playSound:
   jsr PlayBeep
-@update:
+@updateFrame:
   lda frame_flag
   cmp #$01
   bne @return
   ; Whatever is in here, it's going to run once per frame
-  jsr Player::update
+  jsr Player::frameUpdate
 @return:
   lda #$00
   sta frame_flag
+  ldx #255
+  inx
+  
   jmp @GameLoop
-
-
-
 .endproc
 
 .proc nmi
