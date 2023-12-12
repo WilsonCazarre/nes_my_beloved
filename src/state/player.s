@@ -3,7 +3,7 @@
   PLAYER_Y = $0203
   PLAYER_FLAGS = $0206
   PLAYER_HAND = $0201
-  ONION_TILE = $04
+  ONION_TILE = $03
 
   HAND_Y_RIGHT = $26
   HAND_Y_LEFT = $16
@@ -110,7 +110,7 @@
 
   playerSprites:
     ; Hand
-    .byte $24, $00, %00000010, HAND_Y_RIGHT
+    .byte $24, $03, %00000000, HAND_Y_RIGHT
     ; Body
     .byte $20, $01, %00000000, $20
     .byte $28, $11, %00000000, $20

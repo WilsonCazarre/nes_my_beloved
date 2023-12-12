@@ -62,21 +62,22 @@ PPU_LINE_LENGTH = $20
 
 PPU_BUFFER = $0100
 
+.macro EnableRendering
+  lda #%00011110
+  sta PPU_MASK
+.endmacro
+
+.macro DisableRendering
+  lda #%00011110
+  sta PPU_MASK
+.endmacro
+
 .scope PpuController
   buffer_pointer = $30
-  .segment "ZEROPAGE"
-    ppu_ctrl_flags: .res 1
-    ppu_mask_flags: .res 1
-    
-  .segment "CODE"
-
   .proc init
     lda #%10010000
     sta PPU_CTRL
-    sta ppu_ctrl_flags
-    lda #%00011110
-    sta PPU_MASK
-    sta ppu_mask_flags
+    EnableRendering
 
     ; No scrolling
     lda #$00
@@ -91,17 +92,18 @@ PPU_BUFFER = $0100
   .proc setVerticalVram
     lda #%10010100
     sta PPU_CTRL
-    sta ppu_ctrl_flags
     rts
   .endproc
 
   .proc setHorizontalVram
     lda #%10010000
     sta PPU_CTRL
-    sta ppu_ctrl_flags
     rts
   .endproc
 .endscope
+
+
+
 
 .macro VblankWait
 : bit PPU_STATUS  ; N = NMI started
@@ -112,6 +114,9 @@ PPU_BUFFER = $0100
   bit PPU_STATUS
   ldx #.LOBYTE(PALETTES) ; x = $00
   lda #.HIBYTE(PALETTES) ; a = $3f
+
+  lda #$3f ; a = $3f
+  ldx #$00 ; x = $00
 
   ; Tell the PPU write to 3f00
   sta PPU_ADDR  
@@ -124,7 +129,7 @@ PPU_BUFFER = $0100
   cpx #32
   bne @load_pallete_loop
   rts
-  
+
 color_palletes:
   ; Background Palettes
   .byte $0c, $14, $23, $37
@@ -133,7 +138,7 @@ color_palletes:
   .byte $0c, $20, $0d, $37
 
   ; Sprite Palettes
-  .byte $0c, $20, $0d, $37
+  .byte $0c, $27, $32, $07
   .byte $0c, $37, $27, $17
   .byte $0c, $2a, $15, $0d
   .byte $0c, $20, $0d, $37
