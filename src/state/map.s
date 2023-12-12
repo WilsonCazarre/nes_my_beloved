@@ -13,6 +13,9 @@
     lda #CABINET_TILE+3
     sta PPU_DATA
 
+    SetVramAddress $23cd
+    lda #%01 01 01 01
+    sta PPU_DATA
     rts
   .endproc
   
@@ -24,5 +27,5 @@
     rts
   .endproc
   CABINET_TILE = $01
-  CABINET_LOCATION = $20b7
+  CABINET_LOCATION = $20b6
 .endscope

@@ -115,9 +115,6 @@ PPU_BUFFER = $0100
   ldx #.LOBYTE(PALETTES) ; x = $00
   lda #.HIBYTE(PALETTES) ; a = $3f
 
-  lda #$3f ; a = $3f
-  ldx #$00 ; x = $00
-
   ; Tell the PPU write to 3f00
   sta PPU_ADDR  
   stx PPU_ADDR
