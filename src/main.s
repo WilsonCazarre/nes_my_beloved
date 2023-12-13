@@ -71,7 +71,7 @@
   jsr LoadNametables
   
 
-  jsr HUD::init
+  ; jsr HUD::init
   jsr Map::init
   jsr PpuController::init
   
