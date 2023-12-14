@@ -10,7 +10,7 @@ JOYPAD_A = $4016
 JOYPAD_B = $4017
 
 ; --------------- Input Masks --------------------
-BTN_MASK_A      = 1 << 7 ; 1000 0000
+BTN_MASK_A      = 1 << 7
 BTN_MASK_B      = 1 << 6
 BTN_MASK_SEL    = 1 << 5
 BTN_MASK_STR    = 1 << 4

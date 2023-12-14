@@ -71,7 +71,7 @@
   jsr LoadNametables
   
 
-  jsr HUD::init
+  ; jsr HUD::init
   jsr Map::init
   jsr PpuController::init
   
@@ -108,9 +108,20 @@
 
   ; Play beep sound on every key press
   lda PoolControllerA::PRESSED_DATA
-  cmp #%00000000
-  
+  cmp #%10000000 ; PRESSED_DATA - BINARIO, set Z=1 se iguais
+  beq @playSound ; verifica se a ultima operação retornou 0
   jmp @updateFrame
+
+  ; lda PoolControllerA::PRESSED_DATA
+  ; cmp #%00000111 ; PRESSED_DATA - BINARIO, set Z=1 se iguais
+  ; beq @playWalkSound ; verifica se a ultima operação retornou 0
+  ; jmp @updateFrame
+
+
+@playSound:
+  jsr PlayBeep
+; @playWalkSound:
+;   jsr Playwalk
 @updateFrame:
   lda frame_flag
   cmp #$01
@@ -125,6 +136,7 @@
   inx
   
   jmp @GameLoop
+
 .endproc
 
 .proc nmi
@@ -207,4 +219,4 @@
 .endproc
 
 .segment "CHARS"
-  .incbin "CHR_ROM.chr"
+  .incbin "bin/CHR_ROM.chr"
