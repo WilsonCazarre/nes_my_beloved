@@ -129,14 +129,14 @@ PPU_BUFFER = $0100
 
 color_palletes:
   ; Background Palettes
-  .byte $0c, $14, $23, $37
-  .byte $0c, $20, $0d, $37
-  .byte $0c, $20, $0d, $37
+  .byte $03, $06, $17, $2D;PAREDES
+  .byte $03, $3D, $16, $2D ;MOVEIS
+  .byte $03, $16, $27, $20;ALIMENTOS
   .byte $0c, $20, $0d, $37
 
   ; Sprite Palettes
-  .byte $0c, $27, $32, $07
-  .byte $0c, $37, $27, $17
+  .byte $03, $27, $22, $07 ;PLAYER1
+  .byte $03, $15, $37, $26 ;PLAYER2
   .byte $0c, $2a, $15, $0d
   .byte $0c, $20, $0d, $37
 .endproc

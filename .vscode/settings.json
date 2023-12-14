@@ -4,6 +4,7 @@
         "Build NES project": [
             "src/**/*.s",
             "src/**/*.bin",
+            "src/**/*.chr",
         ],
     },
     "codetogether.virtualCursorJoin": "sharedVirtualCursor"
