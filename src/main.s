@@ -1,4 +1,3 @@
-
 .segment "HEADER"
   .byte "NES", $1A          ; iNES header identifier
   .byte 2                   ; 2x 16KB PRG-ROM Banks
@@ -14,15 +13,16 @@
   frame_flag: .res 1
 .segment "CODE"
 ; Library includes
+; .include "lib/famistudio_ca65.s"
+.include "lib/math.s"
 .include "lib/utils.s"
 .include "lib/ppu.s"
 .include "lib/apu.s"
 .include "lib/controller.s"
-.include "state/player.s"
 .include "state/map.s"
-
+.include "state/player.s"
 .include "state/hud.s"
-
+; .include "song.s"
 
 .proc reset
   ; The reset procedure is the entry point for our game. 
@@ -76,12 +76,19 @@
   jsr PpuController::init
   
 
-  InitApu
 
   VramReset
 
   jsr Player::init
-  
+
+  ; lda #1
+  ; ldx #.LOBYTE(music_data_untitled)
+  ; ldy #.HIBYTE(music_data_untitled)
+  ; jsr famistudio_init
+  ; lda #0
+  ; jsr famistudio_music_play
+
+
   
 
 @GameLoop:
@@ -102,16 +109,15 @@
   ; Play beep sound on every key press
   lda PoolControllerA::PRESSED_DATA
   cmp #%00000000
-  ; bne @playSound
+  
   jmp @updateFrame
-@playSound:
-  jsr PlayBeep
 @updateFrame:
   lda frame_flag
   cmp #$01
   bne @return
   ; Whatever is in here, it's going to run once per frame
   jsr Player::frameUpdate
+  ; jsr famistudio_update0
 @return:
   lda #$00
   sta frame_flag

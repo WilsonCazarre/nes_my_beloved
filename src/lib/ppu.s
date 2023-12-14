@@ -217,13 +217,55 @@ color_palletes:
   TILES_BUFFER = $239a
   CURSOR_TILE = $81
   CTRL_BUFFER = TILES_BUFFER + PPU_LINE_LENGTH
+  .segment "ZEROPAGE"
+    pointer1: .res 1
+  .segment "CODE"
 
   LoadAddressToVram TILES_BUFFER, JOYPAD_TILES, #$06
   
+
+  lda $2002
+	lda #$20
+	sta $2006
+	lda #$00
+	sta $2006
+	lda #<TestNametable
+	sta pointer1
+	lda #>TestNametable
+	sta pointer1+1
+	ldy #$00
+	ldx #$04
+@loop:
+	lda (pointer1),y
+	sta $2007
+	iny
+	bne @loop
+	inc pointer1+1
+	dex
+	bne @loop
+
+	lda $2002
+	lda #$23
+	sta $2006
+	lda #$C0
+	sta $2006
+	ldx #$00
+@loop1:
+  lda TestAttributes,x
+	sta $2007
+	inx
+	cpx #64
+	bne @loop1
   rts
 
   JOYPAD_TILES:
     .byte $F0, $F1, $F2, $F3, $F4, $F5
+
+  TestNametable:
+    .incbin "testnametable.bin"
+
+  TestAttributes:
+    .incbin "testattributes.bin"
 .endproc
 
 

@@ -5,12 +5,18 @@
   PLAYER_HAND = $0201
   ONION_TILE = $03
 
-  HAND_Y_RIGHT = $26
-  HAND_Y_LEFT = $16
+  .scope Initial
+    player_x = $20
+    player_y = $20
+
+  .endscope
 
   .segment "ZEROPAGE"
     facing: .res 1 ; 0 = facing right, 1 = facing left
     hand_item: .res 1
+    player_collision_x: .res 1
+    player_collision_y: .res 1
+    colliding_tile: .res 1
   .segment "CODE"
   .proc init
     ldx #$00
@@ -25,10 +31,32 @@
   .endproc
 
   .proc frameUpdate
+    lda PLAYER_X+4
+    lsr
+    lsr
+    lsr
+    sta player_collision_x
+
+    lda PLAYER_Y+4
+    and #%11110000
+    lsr
+    lsr
+    lsr
+    ; lsr
+    sta player_collision_y
+
+    ldy player_collision_x
+    jsr mul8
+    ldx mul8::prodlo
+
+
     lda PoolControllerA::BUTTON_DATA
     and #BTN_MASK_LEFT
     cmp #BTN_MASK_LEFT
     bne @checkRight
+
+    
+
     ; Flip player sprite to right
     lda PLAYER_FLAGS
     ora #%01000000
@@ -46,6 +74,7 @@
     and #BTN_MASK_RIGHT
     cmp #BTN_MASK_RIGHT
     bne @checkDown
+
     ; Flip player sprite to left
     lda PLAYER_FLAGS
     and #%10111111
@@ -65,6 +94,7 @@
     and #BTN_MASK_DOWN
     cmp #BTN_MASK_DOWN
     bne @checkUp
+
     inc PLAYER_X
     inc PLAYER_X+4
     inc PLAYER_X+8
@@ -77,6 +107,7 @@
     and #BTN_MASK_UP
     cmp #BTN_MASK_UP
     bne @return
+
     dec PLAYER_X
     dec PLAYER_X+4
     dec PLAYER_X+8
@@ -109,9 +140,11 @@
   .endproc
 
   playerSprites:
+    ; x_cord, sprite_index, sprite_attr, y_cord
+
     ; Hand
-    .byte $24, $03, %00000000, HAND_Y_RIGHT
+    .byte Initial::player_x+$4, $03, %00000000, Initial::player_y+$6
     ; Body
-    .byte $20, $01, %00000000, $20
-    .byte $28, $11, %00000000, $20
+    .byte Initial::player_x,    $01, %00000000, Initial::player_y
+    .byte Initial::player_x+$8, $11, %00000000, Initial::player_y
 .endscope

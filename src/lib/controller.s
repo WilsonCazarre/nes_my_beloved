@@ -10,7 +10,7 @@ JOYPAD_A = $4016
 JOYPAD_B = $4017
 
 ; --------------- Input Masks --------------------
-BTN_MASK_A      = 1 << 7
+BTN_MASK_A      = 1 << 7 ; 1000 0000
 BTN_MASK_B      = 1 << 6
 BTN_MASK_SEL    = 1 << 5
 BTN_MASK_STR    = 1 << 4
@@ -28,8 +28,8 @@ BTN_MASK_RIGHT  = 1 << 0
   
   .segment "ZEROPAGE"
     PRESSED_DATA: .res 1
-    RENDER_FLAG: .res 1
-    BUTTON_DATA: .res 1
+    RENDER_FLAG:  .res 1
+    BUTTON_DATA:  .res 1
   .segment "CODE"
   
   
@@ -39,19 +39,19 @@ BTN_MASK_RIGHT  = 1 << 0
   ; Pulse JOYPAD_A to start pooling
   lda #$01
   sta JOYPAD_A
-  sta BUTTON_DATA
-  lsr 
+  sta BUTTON_DATA ; 0000 0001
+  lsr             ; a = 0000 0000   
   sta JOYPAD_A
 
   ; Update BUTTON_DATA with new button press
 @controllerLoop:
   lda JOYPAD_A
-  lsr 
+  lsr ; c = bit read
   rol BUTTON_DATA
   bcc @controllerLoop
 
   ; Retrieve old BUTTON_DATA and compares it to new
-  tya
+  tya ; a = old button_data
   eor BUTTON_DATA
   and BUTTON_DATA
   sta PRESSED_DATA
