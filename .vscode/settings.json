@@ -3,6 +3,7 @@
     "triggerTaskOnSave.tasks": {
         "Build NES project": [
             "src/**/*.s",
+            "src/**/*.bin",
         ],
     },
     "codetogether.virtualCursorJoin": "sharedVirtualCursor"

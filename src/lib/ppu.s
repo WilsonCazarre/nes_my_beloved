@@ -258,14 +258,16 @@ color_palletes:
 	bne @loop1
   rts
 
+  TestNametable:
+    .incbin "bin/nametable.bin"
+
+  TestAttributes:
+    .incbin "bin/testattributes.bin"
+
   JOYPAD_TILES:
     .byte $F0, $F1, $F2, $F3, $F4, $F5
 
-  TestNametable:
-    .incbin "testnametable.bin"
 
-  TestAttributes:
-    .incbin "testattributes.bin"
 .endproc
 
 
