@@ -137,7 +137,7 @@ color_palletes:
   ; Sprite Palettes
   .byte $03, $27, $22, $07 ;PLAYER1
   .byte $03, $15, $37, $26 ;PLAYER2
-  .byte $0c, $2a, $15, $0d
+  .byte $03, $16, $27, $20 ;ALIMENTOS
   .byte $0c, $20, $0d, $37
 .endproc
 
