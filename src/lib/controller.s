@@ -43,47 +43,19 @@ BTN_MASK_RIGHT  = 1 << 0
   lsr             ; a = 0000 0000   
   sta JOYPAD_A
 
+
   ; Update BUTTON_DATA with new button press
 @controllerLoop:
-  lda JOYPAD_A
-  lsr ; c = bit read
-  rol BUTTON_DATA
+  lda JOYPAD_A ; 0000 0000 -> C=1 a = mem[operand]
+  lsr ; 0000 0000 -> C=1
+  rol BUTTON_DATA ; 0100 0000
   bcc @controllerLoop
 
   ; Retrieve old BUTTON_DATA and compares it to new
   tya ; a = old button_data
-  eor BUTTON_DATA
+  eor BUTTON_DATA ;andar
   and BUTTON_DATA
-  sta PRESSED_DATA
-
-  ; Update Input Display tiles
-  ldx #7
-  ldy BUTTON_DATA
-@tilesLoop:
-  tya
-  lsr
-  tay
-  lda #$30
-  adc #0
-  sta BUTTON_TILES, x
-  dex
-  bpl @tilesLoop
-
-  
-  lda #BTN_MASK_A 
-  cmp BUTTON_DATA
-  bne endButtonHandle
-  lda RENDER_FLAG
-  lsr
-  bcs notPressed
-  lda #1
-  sta RENDER_FLAG
-  jmp endButtonHandle
-notPressed:
-  lda #0
-  sta RENDER_FLAG
-endButtonHandle:
-  
+  sta PRESSED_DATA ; item
   rts
 
   

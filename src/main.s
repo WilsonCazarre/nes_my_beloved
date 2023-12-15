@@ -74,6 +74,7 @@
   ; jsr HUD::init
   jsr Map::init
   jsr PpuController::init
+  InitApu
   
 
 
@@ -102,26 +103,26 @@
 
   lda #$00
   sta PpuController::buffer_pointer
-  inc PpuController::buffer_pointer
+  ; inc PpuController::buffer_pointer
   jsr PoolControllerA
   jsr Player::update
 
   ; Play beep sound on every key press
-  lda PoolControllerA::PRESSED_DATA
-  cmp #%10000000 ; PRESSED_DATA - BINARIO, set Z=1 se iguais
-  beq @playSound ; verifica se a ultima operação retornou 0
-  jmp @updateFrame
-
   ; lda PoolControllerA::PRESSED_DATA
-  ; cmp #%00000111 ; PRESSED_DATA - BINARIO, set Z=1 se iguais
-  ; beq @playWalkSound ; verifica se a ultima operação retornou 0
+  ; cmp #%00000000 ; PRESSED_DATA - BINARIO, set Z=1 se iguais
+  ; bne @playSound ; verifica se a ultima operação retornou 0
   ; jmp @updateFrame
 
+  lda PoolControllerA::PRESSED_DATA
+  and #%00001111 ; PRESSED_DATA - BINARIO, set Z=1 se iguais
+  beq @updateFrame ; verifica se a ultima operação retornou 0
+  jmp @playWalkSound
 
-@playSound:
-  jsr PlayBeep
-; @playWalkSound:
-;   jsr Playwalk
+
+; @playSound:
+;   jsr PlayBeep
+@playWalkSound:
+  jsr Playwalk
 @updateFrame:
   lda frame_flag
   cmp #$01
@@ -156,26 +157,30 @@
   lda #.LOBYTE(LoadNametables::CTRL_BUFFER)
   sta PPU_ADDR
   
-  lda PoolControllerA::BUTTON_TILES
-  sta PPU_DATA
-  lda PoolControllerA::BUTTON_TILES+1
-  sta PPU_DATA
-  ; Not showing start and select on screen
-  lda PoolControllerA::BUTTON_TILES+4
-  sta PPU_DATA
-  lda PoolControllerA::BUTTON_TILES+5
-  sta PPU_DATA
-  lda PoolControllerA::BUTTON_TILES+6
-  sta PPU_DATA
-  lda PoolControllerA::BUTTON_TILES+7
-  sta PPU_DATA
+  ; lda PoolControllerA::BUTTON_TILES
+  ; sta PPU_DATA
+  ; lda PoolControllerA::BUTTON_TILES+1
+  ; sta PPU_DATA
+  ; ; Not showing start and select on screen
+  ; lda PoolControllerA::BUTTON_TILES+4
+  ; sta PPU_DATA
+  ; lda PoolControllerA::BUTTON_TILES+5
+  ; sta PPU_DATA
+  ; lda PoolControllerA::BUTTON_TILES+6
+  ; sta PPU_DATA
+  ; lda PoolControllerA::BUTTON_TILES+7
+  ; sta PPU_DATA
 
   lda #$00
+
   sta PpuController::buffer_pointer
+
   tax
 
   lda PPU_BUFFER, x
+
   beq @return
+@nextBuffer:
   tay ; Save len in y
   inx
   lda PPU_BUFFER, x
@@ -201,6 +206,9 @@
   inx
   dey
   bne @nextByte
+  lda PPU_BUFFER, x
+  cmp #$00
+  bne @nextBuffer
 @return:
   VramReset
   jsr PpuController::setHorizontalVram

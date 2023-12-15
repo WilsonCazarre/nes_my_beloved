@@ -73,7 +73,11 @@ PPU_BUFFER = $0100
 .endmacro
 
 .scope PpuController
-  buffer_pointer = $30
+  buffer_pointer = $35
+  ; .segment "ZEROPAGE"
+  ;   buffer_pointer: .res 1
+  ; .segment "CODE"
+  
   .proc init
     lda #%10010000
     sta PPU_CTRL
@@ -214,45 +218,39 @@ color_palletes:
 .endmacro
 
 .proc LoadNametables
-  TILES_BUFFER = $239a
-  CURSOR_TILE = $81
-  CTRL_BUFFER = TILES_BUFFER + PPU_LINE_LENGTH
   .segment "ZEROPAGE"
     pointer1: .res 1
   .segment "CODE"
 
-  LoadAddressToVram TILES_BUFFER, JOYPAD_TILES, #$06
-  
-
-  lda $2002
-	lda #$20
-	sta $2006
-	lda #$00
-	sta $2006
-	lda #<TestNametable
+  bit PPU_STATUS
+	lda #.HIBYTE(NAMETABLE_A)
+	sta PPU_ADDR
+	lda #.LOBYTE(NAMETABLE_A)
+	sta PPU_ADDR
+	lda #.LOBYTE(TestNametable)
 	sta pointer1
-	lda #>TestNametable
+	lda #.HIBYTE(TestNametable)
 	sta pointer1+1
 	ldy #$00
 	ldx #$04
 @loop:
 	lda (pointer1),y
-	sta $2007
+	sta PPU_DATA
 	iny
 	bne @loop
 	inc pointer1+1
 	dex
 	bne @loop
 
-	lda $2002
-	lda #$23
-	sta $2006
-	lda #$C0
-	sta $2006
+	bit PPU_STATUS
+	lda #.HIBYTE(ATTR_A)
+	sta PPU_ADDR
+	lda #.LOBYTE(ATTR_A)
+	sta PPU_ADDR
 	ldx #$00
 @loop1:
   lda TestAttributes,x
-	sta $2007
+	sta PPU_DATA
 	inx
 	cpx #64
 	bne @loop1
@@ -272,6 +270,11 @@ color_palletes:
 
 
 .proc vramPush
+  ; Pushes A to next available byte at VramBuffer
+  ; Len - Attr - HI_ADDR - LO_ADDR - Data
+  
+
+  
   .segment "ZEROPAGE"
     load_value: .res 1
   .segment "CODE"
