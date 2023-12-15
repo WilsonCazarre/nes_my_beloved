@@ -23,3 +23,16 @@ After that, just run in the shell:
 This will build the game, creating the `main.nes` file, and execute it with the emulator `Mesen.exe`
 
 It is possible that Mesen will ask you to install the .NET 6 Runtime when you run it for the first time. Just follow their instruction and you'll probably be ok.
+
+# Project Structure
+
+# Recommended Development VSCode extensions
+
+- [Hex Editor](https://marketplace.visualstudio.com/items?itemName=ms-vscode.hexeditor) - Allows viewing and editing files in a raw binary format, useful for the nametable and attribute tables.
+
+- [Alchemy65](https://marketplace.visualstudio.com/items?itemName=alchemic-raker.alchemy65) - Syntax Highlighting. It also connects to the Mesen debugger, allowing you to debug the NES ROM inside VSCode.
+
+- [Trigger Task on Save](https://marketplace.visualstudio.com/items?itemName=Gruntfuggly.triggertaskonsave) - Builds the game
+automatically on saving.
+
+The configuration for the extensions is also provided under the `.vscode` folder.

@@ -28,7 +28,7 @@
   OVEN_1_X = $00
   OVEN_1_Y = $02
 
-  CONVEYOR_X = $01
+  CONVEYOR_X = $03
   CONVEYOR_Y = $00
 .endscope
 

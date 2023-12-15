@@ -151,11 +151,11 @@
   ; currently using the 6502 registers.
   SaveRegisters
 
-  bit PPU_STATUS
-  lda #.HIBYTE(LoadNametables::CTRL_BUFFER)
-  sta PPU_ADDR
-  lda #.LOBYTE(LoadNametables::CTRL_BUFFER)
-  sta PPU_ADDR
+  ; bit PPU_STATUS
+  ; lda #.HIBYTE(LoadNametables::CTRL_BUFFER)
+  ; sta PPU_ADDR
+  ; lda #.LOBYTE(LoadNametables::CTRL_BUFFER)
+  ; sta PPU_ADDR
   
   ; lda PoolControllerA::BUTTON_TILES
   ; sta PPU_DATA
