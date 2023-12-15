@@ -26,6 +26,14 @@ It is possible that Mesen will ask you to install the .NET 6 Runtime when you ru
 
 # Project Structure
 
+| **Folder or File** |                                                          **Description**                                                          |
+|:------------------:|:---------------------------------------------------------------------------------------------------------------------------------:|
+|      **src/**      |                                                Source code for generating the ROM.                                                |
+|     src/main.s     |                                     Entry point of our ROM, every other file is imported here.                                    |
+|       src/lib      |                     Files for controlling NES modules like talking to the PPU or reading controller input etc.                    |
+|       src/bin      |              Raw binary files. Usually the end up here so we don't have a giant array of bytes directly in our code.              |
+|      src/state     | Main game logic. We tried to sperate the logic into multiple chunks of code, but most of it end up living in the `player.s` file. |
+
 # Recommended Development VSCode extensions
 
 - [Hex Editor](https://marketplace.visualstudio.com/items?itemName=ms-vscode.hexeditor) - Allows viewing and editing files in a raw binary format, useful for the nametable and attribute tables.
